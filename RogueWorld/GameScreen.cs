@@ -20,10 +20,11 @@ namespace RogueWorld
         public static int mapWidth = 160;
         public static int mapHeight = 120;
         public static Terrain[,] terrainMap = new Terrain[mapWidth, mapHeight];
-        public int GrassGrowSpeed = 1;
+        public float GrassGrowSpeed = 2f;
         public static int NumberChickens = 5;
 
         public static List<Creature> creatureList = new List<Creature>();
+        public static List<Creature> spawnList = new List<Creature>();
 
         public GameScreen()
         {
@@ -114,7 +115,15 @@ namespace RogueWorld
         {
             ResetMap();
             creatureList.Clear();
-            AddCreature();
+           
+            for (int i = 0; i < 50; i++)
+            {
+                AddChicken();
+                AddRabbit();
+                AddWolf();
+            }
+
+            
         }
 
         private void ResetMap()
@@ -129,26 +138,30 @@ namespace RogueWorld
         }
 
 
-
         private void GameUpdate()
         {
+
             foreach (var creature in creatureList)
             {
                 creature.Update();
             }
 
-            int numberToSpawn = 0;
-
-            foreach (var creature in creatureList)
+            List<Creature> creatureDeleteList = new List<Creature>();
+            creatureDeleteList = creatureList.Where(x => x.Alive == false).ToList();
+            foreach (var creature in creatureDeleteList)
             {
-                numberToSpawn += creature.SpawnOffspring;
-            }
-
-            for (int i = 0; i < numberToSpawn; i++)
-            {
-                AddCreature();
+                GameScreen.terrainMap[creature.xPos, creature.yPos].stuffList.Remove(creature);
             }
             creatureList.RemoveAll(x => x.Alive == false);
+
+            creatureList.AddRange(spawnList);
+
+            foreach (var creature in spawnList)
+            {
+                GameScreen.terrainMap[creature.xPos, creature.yPos].stuffList.Add(creature);
+            }
+            spawnList.Clear();
+
 
             for (int x = 0; x < mapWidth; x++)
             {
@@ -160,7 +173,12 @@ namespace RogueWorld
                     {
                         terrainMap[x, y].foodPotential = 255;
                     }
-                    terrainMap[x, y].bgColor = Color.FromArgb(255, 0, terrainMap[x, y].foodPotential, 0);
+                    terrainMap[x, y].bgColor = Color.FromArgb(255, 0, (int)terrainMap[x, y].foodPotential, 0);
+                    //if (terrainMap[x, y].stuffList.Count > 0)
+                    //{
+                    //    terrainMap[x, y].bgColor = Color.White;
+
+                    //}
                 }
             }
         }
@@ -178,24 +196,66 @@ namespace RogueWorld
         }
 
 
-        public static void AddCreature()
+        public static void AddChicken()
         {
-            Creature creature;
-            for (int i = 0; i < NumberChickens; i++)
-            {
-                creature = new Creature();
-                creature.height = tileHeight;
-                creature.width = tileWidth;
-                int xpos = globalRandom.Next(mapWidth);
-                int ypos = globalRandom.Next(mapHeight);
-                creature.xPos = xpos;
-                creature.yPos = ypos;
+            Chicken creature;
 
-                creatureList.Add(creature);
-                terrainMap[xpos, ypos].stuffList.Add(creature);
-            }
+            creature = new Chicken();
+            creature.Name = "Chicken";
+            creature.bgColor = Color.Yellow;
+            creature.height = tileHeight;
+            creature.width = tileWidth;
+            int xpos = globalRandom.Next(mapWidth);
+            int ypos = globalRandom.Next(mapHeight);
+            creature.xPos = xpos;
+            creature.yPos = ypos;
+
+            creatureList.Add(creature);
+            terrainMap[xpos, ypos].stuffList.Add(creature);
+
         }
 
+        public static void AddWolf()
+        {
+            Wolf creature;
+
+            creature = new Wolf();
+            creature.Name = "Wolf";
+            creature.bgColor = Color.Red;
+            creature.height = tileHeight;
+            creature.width = tileWidth;
+            creature.health = 200;
+            creature.maxHealth = 200;
+            creature.maxAge = 1000;
+            creature.SpawnAge = GameScreen.globalRandom.Next(1000);
+            int xpos = globalRandom.Next(mapWidth);
+            int ypos = globalRandom.Next(mapHeight);
+            creature.xPos = xpos;
+            creature.yPos = ypos;
+
+            creatureList.Add(creature);
+            terrainMap[xpos, ypos].stuffList.Add(creature);
+
+        }
+
+        public static void AddRabbit()
+        {
+            Rabbit creature;
+
+            creature = new Rabbit();
+            creature.Name = "Rabbit";
+            creature.bgColor = Color.Aqua;
+            creature.height = tileHeight;
+            creature.width = tileWidth;
+            int xpos = globalRandom.Next(mapWidth);
+            int ypos = globalRandom.Next(mapHeight);
+            creature.xPos = xpos;
+            creature.yPos = ypos;
+
+            creatureList.Add(creature);
+            terrainMap[xpos, ypos].stuffList.Add(creature);
+
+        }
 
 
         public void DrawFog(Graphics g)
@@ -249,9 +309,17 @@ namespace RogueWorld
             brush.Dispose();
         }
 
-        private void GameScreen_Resize(object sender, EventArgs e)
-        {
-            this.Text = "H: " + this.Height + "  W: " + this.Width;
-        }
     }
 }
+
+
+//foreach (var creature in creatureList)
+//           {
+//               System.Type type = creature.GetType();
+
+//               if (type==typeof(Chicken))
+//               {
+//                  //dosomething
+//               }
+
+//           }

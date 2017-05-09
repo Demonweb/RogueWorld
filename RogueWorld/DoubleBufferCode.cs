@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace RogueWorld
 {
-    public partial class Form1 : Form
+    public partial class DoubleBufferCode : Form
     {
         Bitmap Backbuffer;
 
@@ -20,7 +20,7 @@ namespace RogueWorld
         Point BallSpeed = new Point(BallAxisSpeed, BallAxisSpeed);
         const int BallSize = 50;
 
-        public Form1()
+        public DoubleBufferCode()
         {
             InitializeComponent();
 

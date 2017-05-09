@@ -11,8 +11,8 @@ namespace RogueWorld
     {
         public string Name = "Grass";
         public Color bgColor = Color.Green;
-        public List<Object> stuffList = new List<Object>();
+        public List<Creature> stuffList = new List<Creature>();
 
-        public int foodPotential = 0;
+        public float foodPotential = 0;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace RogueWorld
 {
-    partial class Form1
+    partial class DoubleBufferCode
     {
         /// <summary>
         /// Required designer variable.
