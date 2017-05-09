@@ -16,8 +16,8 @@ namespace RogueWorld
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-           // Application.Run(new GameScreen());
-            Application.Run(new Form1());
+            Application.Run(new GameScreen());
+           
         }
     }
 }

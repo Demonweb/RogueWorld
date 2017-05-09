@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,33 +12,103 @@ namespace RogueWorld
 {
     public partial class GameScreen : Form
     {
-        Graphics formGraphics;
+        Bitmap Backbuffer;
 
         public static Random globalRandom = new Random();
-        public int tileWidth = 16;
-        public int tileHeight = 16;
-        public static int mapWidth = 40;
-        public static int mapHeight = 30;
+        public static int tileWidth = 4;
+        public static int tileHeight = 4;
+        public static int mapWidth = 160;
+        public static int mapHeight = 120;
         public static Terrain[,] terrainMap = new Terrain[mapWidth, mapHeight];
+        public int GrassGrowSpeed = 1;
+        public static int NumberChickens = 5;
 
-
-        List<Creature> creatureList = new List<Creature>();
+        public static List<Creature> creatureList = new List<Creature>();
 
         public GameScreen()
         {
             InitializeComponent();
-        }
-        
-        private void btnReset_Click(object sender, EventArgs e)
-        {
+            this.Height = 519;
+            this.Width = 657;
+
             ResetGame();
-            GameDraw();
+
+            this.SetStyle(
+            ControlStyles.UserPaint |
+            ControlStyles.AllPaintingInWmPaint |
+            ControlStyles.DoubleBuffer, true);
+
+            Timer GameTimer = new Timer();
+            GameTimer.Interval = 10;
+            GameTimer.Tick += new EventHandler(GameTimer_Tick);
+            GameTimer.Start();
+
+            this.ResizeEnd += new EventHandler(GameScreen_CreateBackBuffer);
+            this.Load += new EventHandler(GameScreen_CreateBackBuffer);
+            this.Paint += new PaintEventHandler(GameScreen_Paint);
+
+            this.KeyDown += new KeyEventHandler(GameScreen_KeyDown);
+
+
         }
 
-        private void btnStep_Click(object sender, EventArgs e)
+        private void GameScreen_KeyDown(object sender, KeyEventArgs e)
         {
-            GameCycle();
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+            }
+            if (e.KeyCode == Keys.A) { }
+            //               
+            else if (e.KeyCode == Keys.D) { }
+            //
+            else if (e.KeyCode == Keys.W) { }
+            //
+            else if (e.KeyCode == Keys.S) { }
+            //
         }
+
+        private void GameScreen_Paint(object sender, PaintEventArgs e)
+        {
+            if (Backbuffer != null)
+            {
+                e.Graphics.DrawImageUnscaled(Backbuffer, Point.Empty);
+            }
+        }
+
+        void GameScreen_CreateBackBuffer(object sender, EventArgs e)
+        {
+            if (Backbuffer != null)
+                Backbuffer.Dispose();
+
+            Backbuffer = new Bitmap(ClientSize.Width, ClientSize.Height);
+        }
+
+        void Draw()
+        {
+            if (Backbuffer != null)
+            {
+                using (var g = Graphics.FromImage(Backbuffer))
+                {
+                    g.Clear(Color.Black);
+
+                    DrawMap(g);
+                    DrawCreature(g);
+                }
+
+                Invalidate();
+            }
+            this.Text = creatureList.Count().ToString();
+        }
+
+        void GameTimer_Tick(object sender, EventArgs e)
+        {
+            GameUpdate();
+            Draw();
+
+            // TODO: Add the notion of dying (disable the timer and show a message box or something)
+        }
+
 
         private void ResetGame()
         {
@@ -60,12 +129,6 @@ namespace RogueWorld
         }
 
 
-        private void GameCycle()
-        {
-            GameUpdate();
-            GameDraw();
-        }
-
 
         private void GameUpdate()
         {
@@ -73,46 +136,52 @@ namespace RogueWorld
             {
                 creature.Update();
             }
+
+            int numberToSpawn = 0;
+
+            foreach (var creature in creatureList)
+            {
+                numberToSpawn += creature.SpawnOffspring;
+            }
+
+            for (int i = 0; i < numberToSpawn; i++)
+            {
+                AddCreature();
+            }
+            creatureList.RemoveAll(x => x.Alive == false);
+
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
                 {
-                    terrainMap[x, y].foodPotential += 1;
-                    if (terrainMap[x, y].foodPotential > 25)
+                    terrainMap[x, y].foodPotential += GrassGrowSpeed;
+
+                    if (terrainMap[x, y].foodPotential > 255)
                     {
-                        terrainMap[x, y].foodPotential = 25;
+                        terrainMap[x, y].foodPotential = 255;
                     }
-                    terrainMap[x, y].bgColor = Color.FromArgb(255, 0, terrainMap[x, y].foodPotential*10, 0);
+                    terrainMap[x, y].bgColor = Color.FromArgb(255, 0, terrainMap[x, y].foodPotential, 0);
                 }
             }
         }
 
 
-        private void GameDraw()
-        {
-            formGraphics = pictureBox1.CreateGraphics();
-            ClearPanel();
-            DrawMap();
-            DrawCreature();
-            formGraphics.Dispose();
-        }
-
         private Terrain RandomTerrain()
         {
-            int g = globalRandom.Next(25);
+            int foodPotential = globalRandom.Next(255);
             Terrain terrain = new Terrain();
             terrain.Name = "Grass";
-            terrain.foodPotential = g;
-            terrain.bgColor = Color.FromArgb(255, 0, g * 10, 0);
+            terrain.foodPotential = foodPotential;
+            terrain.bgColor = Color.FromArgb(255, 0, foodPotential, 0);
 
             return terrain;
         }
 
 
-        public void AddCreature()
+        public static void AddCreature()
         {
             Creature creature;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < NumberChickens; i++)
             {
                 creature = new Creature();
                 creature.height = tileHeight;
@@ -127,68 +196,62 @@ namespace RogueWorld
             }
         }
 
-        public void ClearPanel()
-        {
-            SolidBrush brush = new SolidBrush(Color.Black);
-            formGraphics.FillRectangle(brush, new Rectangle(0, 0, 640, 480));
-            brush.Dispose();
-        }
 
-        public void DrawFog()
+
+        public void DrawFog(Graphics g)
         {
             SolidBrush brush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-            formGraphics.FillRectangle(brush, new Rectangle(0, 0, 640, 480));
+            g.FillRectangle(brush, new Rectangle(0, 0, 640, 480));
             brush.Dispose();
         }
 
 
-        public void DrawMap()
+        public void DrawMap(Graphics g)
         {
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
                 {
-                    DrawSquare(x, y, terrainMap[x, y].bgColor);
+                    DrawSquare(g, x, y, terrainMap[x, y].bgColor);
                 }
             }
         }
 
-        public void DrawCreature()
+        public void DrawCreature(Graphics g)
         {
             foreach (var creature in creatureList)
             {
-                FillCircle(creature.xPos, creature.yPos, creature.height, creature.bgColor);
+                FillCircle(g, creature.xPos, creature.yPos, creature.height, creature.bgColor);
             }
         }
 
-        public void DrawSquare(int x, int y, Color color)
+        public void DrawSquare(Graphics g, int x, int y, Color color)
         {
             SolidBrush brush = new SolidBrush(color);
-            Pen pen = new Pen(Color.Black);
-
-            formGraphics.FillRectangle(brush, new Rectangle(x * tileWidth, y * tileWidth, tileWidth, tileWidth));
-            formGraphics.DrawRectangle(pen, new Rectangle(x * tileHeight, y * tileHeight, tileHeight, tileHeight));
+            //Pen pen = new Pen(Color.Black);
+            g.FillRectangle(brush, new Rectangle(x * tileWidth, y * tileWidth, tileWidth, tileWidth));
+            //g.DrawRectangle(pen, new Rectangle(x * tileHeight, y * tileHeight, tileHeight, tileHeight));
             brush.Dispose();
+            //pen.Dispose();
+        }
+
+        public void DrawCircle(Graphics g, float x, float y, float radius, Color color)
+        {
+            Pen pen = new Pen(Color.Black);
+            g.DrawEllipse(pen, x, y, radius, radius);
             pen.Dispose();
         }
 
-        public void DrawCircle(float x, float y, float radius, Color color)
-        {
-            Pen pen = new Pen(Color.Black);
-            formGraphics.DrawEllipse(pen, x, y, radius, radius);
-            pen.Dispose();
-        }
-
-        public void FillCircle(float x, float y, float radius, Color color)
+        public void FillCircle(Graphics g, float x, float y, float radius, Color color)
         {
             SolidBrush brush = new SolidBrush(color);
-
-            formGraphics.FillEllipse(brush, x * tileWidth, y * tileHeight, radius, radius);
+            g.FillEllipse(brush, x * tileWidth, y * tileHeight, radius, radius);
             brush.Dispose();
         }
 
-
-
-
+        private void GameScreen_Resize(object sender, EventArgs e)
+        {
+            this.Text = "H: " + this.Height + "  W: " + this.Width;
+        }
     }
 }
