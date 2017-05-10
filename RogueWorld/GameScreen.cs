@@ -15,8 +15,8 @@ namespace RogueWorld
         Bitmap Backbuffer;
 
         public static Random globalRandom = new Random();
-        public static int tileWidth = 4;
-        public static int tileHeight = 4;
+        public static int tileWidth = 32;
+        public static int tileHeight = 32;
         public static int mapWidth = 10;
         public static int mapHeight = 10;
         public static Terrain[,] terrainMap; 
@@ -39,8 +39,8 @@ namespace RogueWorld
 
             Timer GameTimer = new Timer();
             GameTimer.Interval = 10;
-            GameTimer.Tick += new EventHandler(GameTimer_Tick);
-            GameTimer.Start();
+            GameTimer.Tick += new EventHandler(MainGameLoop);
+          
 
             this.ResizeEnd += new EventHandler(GameScreen_CreateBackBuffer);
             this.Load += new EventHandler(GameScreen_CreateBackBuffer);
@@ -48,15 +48,14 @@ namespace RogueWorld
 
             this.KeyDown += new KeyEventHandler(GameScreen_KeyDown);
 
+            GameTimer.Start();
             ResetGame();
         }
 
         private void GameScreen_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
-            {
-                this.Close();
-            }
+            if (e.KeyCode == Keys.Escape) this.Close();
+           
             if (e.KeyCode == Keys.A) { }
             //               
             else if (e.KeyCode == Keys.D) { }
@@ -81,6 +80,13 @@ namespace RogueWorld
                 Backbuffer.Dispose();
 
             Backbuffer = new Bitmap(ClientSize.Width, ClientSize.Height);
+        }  
+
+        void MainGameLoop(object sender, EventArgs e)
+        {
+            GameUpdate();
+            Draw();
+           
         }
 
         void Draw()
@@ -93,21 +99,14 @@ namespace RogueWorld
 
                     DrawMap(g);
                     DrawCreature(g);
+                    DrawString(g);
+                    DrawImage(g);
                 }
 
                 Invalidate();
             }
             this.Text = creatureList.Count().ToString();
         }
-
-        void GameTimer_Tick(object sender, EventArgs e)
-        {
-            GameUpdate();
-            Draw();
-
-            // TODO: Add the notion of dying (disable the timer and show a message box or something)
-        }
-
 
         private void ResetGame()
         {
@@ -141,8 +140,7 @@ namespace RogueWorld
                 }
             }
         }
-
-
+        
         private void GameUpdate()
         {
 
@@ -179,11 +177,6 @@ namespace RogueWorld
                         terrainMap[x, y].foodPotential = 255;
                     }
                     terrainMap[x, y].bgColor = Color.FromArgb(255, 0, (int)terrainMap[x, y].foodPotential, 0);
-                    //if (terrainMap[x, y].stuffList.Count > 0)
-                    //{
-                    //    terrainMap[x, y].bgColor = Color.White;
-
-                    //}
                 }
             }
         }
@@ -261,15 +254,7 @@ namespace RogueWorld
             terrainMap[xpos, ypos].stuffList.Add(creature);
 
         }
-
-
-        public void DrawFog(Graphics g)
-        {
-            SolidBrush brush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-            g.FillRectangle(brush, new Rectangle(0, 0, 640, 480));
-            brush.Dispose();
-        }
-
+            
 
         public void DrawMap(Graphics g)
         {
@@ -285,8 +270,7 @@ namespace RogueWorld
         public void DrawCreature(Graphics g)
         {
             foreach (var creature in creatureList)
-            {
-                //FillCircle(g, creature.xPos, creature.yPos, creature.height, creature.bgColor);
+            {   
                 DrawSquare(g, creature.xPos, creature.yPos, creature.bgColor);
             }
         }
@@ -315,6 +299,27 @@ namespace RogueWorld
             brush.Dispose();
         }
 
+        public void DrawString(Graphics g)
+        {
+            string drawString = "Sample Text...";
+            Font drawFont = new System.Drawing.Font("Arial", 16);
+            SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
+            float x = 150.0F;
+            float y = 50.0F;
+            StringFormat drawFormat = new StringFormat();
+            g.DrawString(drawString, drawFont, drawBrush, x, y, drawFormat);
+            drawFont.Dispose();
+            drawBrush.Dispose();
+            g.Dispose();
+        }
+        public void DrawImage(Graphics g)
+        {
+
+            //Image newImage = Image.FromFile(Application.StartupPath + "\\Images\\Terrain.bmp");
+            //Point ulCorner = new Point(0, 0);
+            //g.Graphics.DrawImageUnscaled(newImage, ulCorner);
+
+        }
     }
 }
 
