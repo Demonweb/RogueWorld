@@ -28,12 +28,14 @@ namespace RogueWorld
             if (age > SpawnAge)
             {
                 Alive = false;
-                for (int i = 0; i < GameScreen.globalRandom.Next(0, 10); i++)
+                for (int i = 0; i < GameScreen.globalRandom.Next(0, 20); i++)
                 {
                     Rabbit creature;
                     creature = new Rabbit();
                     creature.Name = "Rabbit";
                     creature.bgColor = Color.Aqua;
+                    creature.maxAge = 1000;
+                    creature.SpawnOffspring = 15;
                     creature.height = GameScreen.tileHeight;
                     creature.width = GameScreen.tileWidth;
                     creature.xPos = xPos;

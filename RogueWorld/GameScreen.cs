@@ -17,9 +17,9 @@ namespace RogueWorld
         public static Random globalRandom = new Random();
         public static int tileWidth = 4;
         public static int tileHeight = 4;
-        public static int mapWidth = 160;
-        public static int mapHeight = 120;
-        public static Terrain[,] terrainMap = new Terrain[mapWidth, mapHeight];
+        public static int mapWidth = 10;
+        public static int mapHeight = 10;
+        public static Terrain[,] terrainMap; 
         public float GrassGrowSpeed = 2f;
         public static int NumberChickens = 5;
 
@@ -29,10 +29,8 @@ namespace RogueWorld
         public GameScreen()
         {
             InitializeComponent();
-            this.Height = 519;
-            this.Width = 657;
-
-            ResetGame();
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Maximized;            
 
             this.SetStyle(
             ControlStyles.UserPaint |
@@ -50,7 +48,7 @@ namespace RogueWorld
 
             this.KeyDown += new KeyEventHandler(GameScreen_KeyDown);
 
-
+            ResetGame();
         }
 
         private void GameScreen_KeyDown(object sender, KeyEventArgs e)
@@ -128,6 +126,13 @@ namespace RogueWorld
 
         private void ResetMap()
         {
+
+            Rectangle screen = Screen.FromControl(this).Bounds;
+
+            mapWidth = screen.Width / tileWidth;
+            mapHeight = screen.Height / tileHeight;
+            terrainMap = new Terrain[mapWidth, mapHeight];
+
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
@@ -281,7 +286,8 @@ namespace RogueWorld
         {
             foreach (var creature in creatureList)
             {
-                FillCircle(g, creature.xPos, creature.yPos, creature.height, creature.bgColor);
+                //FillCircle(g, creature.xPos, creature.yPos, creature.height, creature.bgColor);
+                DrawSquare(g, creature.xPos, creature.yPos, creature.bgColor);
             }
         }
 

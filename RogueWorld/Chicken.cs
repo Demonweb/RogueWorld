@@ -36,6 +36,7 @@ namespace RogueWorld
                     creature.bgColor = Color.Yellow;
                     creature.height = GameScreen.tileHeight;
                     creature.width = GameScreen.tileWidth;
+                    creature.maxAge = 1000;
                     creature.xPos = xPos;
                     creature.yPos = yPos;
                     GameScreen.spawnList.Add(creature);                  
