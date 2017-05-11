@@ -29,8 +29,13 @@ namespace RogueWorld
         public int SpawnAge = GameScreen.globalRandom.Next(200);
         public int SpawnOffspring = 0;
 
+        public virtual void SpawnNew() { }
+
+        public virtual void SpawnDefault() { }
+
         public virtual void Update() { }
 
+        public virtual void Scan() { }
       
         
 

@@ -14,8 +14,8 @@ namespace RogueWorld
         public override void Update()
         {
           
-            age += 1;
-            health -= 1;
+            //age += 1;
+            //health -= 1;
 
             Hunt();
 

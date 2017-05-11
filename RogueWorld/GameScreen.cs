@@ -113,10 +113,10 @@ namespace RogueWorld
             ResetMap();
             creatureList.Clear();
            
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 1; i++)
             {
                 AddChicken();
-                AddRabbit();
+                //AddRabbit();
                 AddWolf();
             }
 
@@ -130,6 +130,8 @@ namespace RogueWorld
 
             mapWidth = screen.Width / tileWidth;
             mapHeight = screen.Height / tileHeight;
+            //mapWidth = 20;
+            //mapHeight = 20;
             terrainMap = new Terrain[mapWidth, mapHeight];
 
             for (int x = 0; x < mapWidth; x++)
@@ -147,6 +149,7 @@ namespace RogueWorld
             foreach (var creature in creatureList)
             {
                 creature.Update();
+                creature.Scan();
             }
 
             List<Creature> creatureDeleteList = new List<Creature>();
@@ -181,7 +184,6 @@ namespace RogueWorld
             }
         }
 
-
         private Terrain RandomTerrain()
         {
             int foodPotential = globalRandom.Next(255);
@@ -192,7 +194,6 @@ namespace RogueWorld
 
             return terrain;
         }
-
 
         public static void AddChicken()
         {
@@ -254,15 +255,14 @@ namespace RogueWorld
             terrainMap[xpos, ypos].stuffList.Add(creature);
 
         }
-            
-
+        
         public void DrawMap(Graphics g)
         {
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
                 {
-                    DrawSquare(g, x, y, terrainMap[x, y].bgColor);
+                    DrawFilledSquare(g, x, y, terrainMap[x, y].bgColor);
                 }
             }
         }
@@ -271,19 +271,27 @@ namespace RogueWorld
         {
             foreach (var creature in creatureList)
             {   
-                DrawSquare(g, creature.xPos, creature.yPos, creature.bgColor);
+                DrawFilledSquare(g, creature.xPos, creature.yPos, creature.bgColor);
+                DrawOutlineSquare(g, creature.xPos, creature.yPos, Color.White);
             }
         }
 
-        public void DrawSquare(Graphics g, int x, int y, Color color)
+        public void DrawFilledSquare(Graphics g, int x, int y, Color color)
         {
-            SolidBrush brush = new SolidBrush(color);
-            //Pen pen = new Pen(Color.Black);
-            g.FillRectangle(brush, new Rectangle(x * tileWidth, y * tileWidth, tileWidth, tileWidth));
-            //g.DrawRectangle(pen, new Rectangle(x * tileHeight, y * tileHeight, tileHeight, tileHeight));
+            SolidBrush brush = new SolidBrush(color);           
+            g.FillRectangle(brush, new Rectangle(x * tileWidth, y * tileWidth, tileWidth, tileWidth));            
             brush.Dispose();
-            //pen.Dispose();
+            
         }
+
+        public void DrawOutlineSquare(Graphics g, int x, int y, Color color)
+        {
+            Pen pen = new Pen(Color.Black);
+            g.DrawRectangle(pen, new Rectangle((x-2) * tileHeight, (y-2) * tileHeight, tileHeight*5, tileHeight*5));
+            pen.Dispose();
+        }
+
+
 
         public void DrawCircle(Graphics g, float x, float y, float radius, Color color)
         {

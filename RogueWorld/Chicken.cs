@@ -9,14 +9,14 @@ namespace RogueWorld
 {
     class Chicken : Creature
     {
-        
+
         public override void Update()
         {
-            GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
+            //GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
 
             maxHealth = 100;
             age += 1;
-            
+
             GameScreen.terrainMap[xPos, yPos].foodPotential = 0;
             health -= 40;
 
@@ -28,18 +28,20 @@ namespace RogueWorld
             if (age > SpawnAge)
             {
                 Alive = false;
-                for (int i = 0; i < GameScreen.globalRandom.Next(0, 10); i++)
+                for (int i = 0; i < GameScreen.globalRandom.Next(1, 3); i++)
                 {
-                    Chicken creature;
-                    creature = new Chicken();
+                    int x = GameScreen.globalRandom.Next(GameScreen.mapWidth);
+                    int y = GameScreen.globalRandom.Next(GameScreen.mapHeight);
+
+                    Chicken creature = new Chicken();
                     creature.Name = "Chicken";
-                    creature.bgColor = Color.Yellow;
+                    creature.bgColor = Color.Gold;
                     creature.height = GameScreen.tileHeight;
                     creature.width = GameScreen.tileWidth;
                     creature.maxAge = 1000;
-                    creature.xPos = xPos;
-                    creature.yPos = yPos;
-                    GameScreen.spawnList.Add(creature);                  
+                    creature.xPos = x;
+                    creature.yPos = y;
+                    GameScreen.spawnList.Add(creature);
                 }
             }
 
@@ -47,13 +49,42 @@ namespace RogueWorld
 
         }
 
+
+        public override void Scan()
+        {
+            List<Creature> scanList = new List<Creature>();
+
+            for (int i = -2; i < 3; i++)
+            {
+                for (int j = -2; j < 3; j++)
+                {
+                    if (xPos + i > 0 && xPos + i < GameScreen.mapWidth - 1 && yPos + j > 0 && yPos + j < GameScreen.mapHeight - 1)
+                    {
+                        foreach (var item in GameScreen.terrainMap[xPos + i, yPos + j].stuffList )
+                        {
+                            Type type = item.GetType();
+
+                            if (type == typeof(Wolf))
+                            {
+                                var tt = 0;
+                            }
+                        }                        
+                    }
+                }
+            }           
+        }
+
+
         private void Hunt()
         {
+
+
+
             GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
 
             float highestFoodValue = 0;
             List<Point> moveDirectionList = new List<Point>();
-            
+
             //up
             int tryX = xPos - 1;
             if (tryX >= 0)
@@ -120,7 +151,7 @@ namespace RogueWorld
             xPos += moveDirectionList[dir].X;
             yPos += moveDirectionList[dir].Y;
 
-            GameScreen.terrainMap[xPos , yPos].stuffList.Add(this);
+            GameScreen.terrainMap[xPos, yPos].stuffList.Add(this);
 
             health += highestFoodValue;
             if (health > maxHealth) health = maxHealth;
