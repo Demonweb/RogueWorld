@@ -15,11 +15,13 @@ namespace RogueWorld
         Bitmap Backbuffer;
 
         public static Random globalRandom = new Random();
-        public static int tileWidth = 32;
-        public static int tileHeight = 32;
+        public static int tileWidth = 8;
+        public static int tileHeight = 8;
         public static int mapWidth = 10;
         public static int mapHeight = 10;
-        public static Terrain[,] terrainMap; 
+        public static Terrain[,] terrainMap;
+       
+
         public float GrassGrowSpeed = 2f;
         public static int NumberChickens = 5;
 
@@ -66,46 +68,30 @@ namespace RogueWorld
             //
         }
 
-        private void GameScreen_Paint(object sender, PaintEventArgs e)
-        {
-            if (Backbuffer != null)
-            {
-                e.Graphics.DrawImageUnscaled(Backbuffer, Point.Empty);
-            }
-        }
-
         void GameScreen_CreateBackBuffer(object sender, EventArgs e)
         {
+            // step 1
             if (Backbuffer != null)
                 Backbuffer.Dispose();
 
             Backbuffer = new Bitmap(ClientSize.Width, ClientSize.Height);
         }  
 
+        private void GameScreen_Paint(object sender, PaintEventArgs e)
+        {
+           //step 2
+            if (Backbuffer != null)
+            {
+                e.Graphics.DrawImageUnscaled(Backbuffer, Point.Empty);
+            } 
+        }
+        
         void MainGameLoop(object sender, EventArgs e)
         {
+            //step3
             GameUpdate();
             Draw();
            
-        }
-
-        void Draw()
-        {
-            if (Backbuffer != null)
-            {
-                using (var g = Graphics.FromImage(Backbuffer))
-                {
-                    g.Clear(Color.Black);
-
-                    DrawMap(g);
-                    DrawCreature(g);
-                    DrawString(g);
-                    DrawImage(g);
-                }
-
-                Invalidate();
-            }
-            this.Text = creatureList.Count().ToString();
         }
 
         private void ResetGame()
@@ -122,6 +108,22 @@ namespace RogueWorld
 
             
         }
+        void Draw()
+        {
+            if (Backbuffer != null)
+            {
+                using (var g = Graphics.FromImage(Backbuffer))
+                {
+                    g.Clear(Color.Black);                    
+                    DrawMap(g);
+                    DrawCreature(g);
+                    DrawString(g);                   
+                }
+                Invalidate();
+            }
+            this.Text = creatureList.Count().ToString();
+        }
+      
 
         private void ResetMap()
         {
@@ -189,6 +191,20 @@ namespace RogueWorld
             terrain.Name = "Grass";
             terrain.foodPotential = foodPotential;
             terrain.bgColor = Color.FromArgb(255, 0, foodPotential, 0);
+            //switch (globalRandom.Next(10))
+            //{
+            //    case 0:
+            //        terrain.SetImage("23.png");
+            //        break;
+            //    case 1:
+            //        terrain.SetImage("324.png");
+            //        terrain.blocked = true;                    
+            //        break;
+            //    default:
+            //        terrain.SetImage("0.png");
+            //        break;
+            //}
+
 
             return terrain;
         }
@@ -262,7 +278,8 @@ namespace RogueWorld
             {
                 for (int y = 0; y < mapHeight; y++)
                 {
-                    DrawSquare(g, x, y, terrainMap[x, y].bgColor);
+                    DrawSquare(g, x, y, terrainMap[x, y].bgColor);                    
+                    //DrawImage(g, x * tileWidth, y * tileWidth, terrainMap[x,y].image);
                 }
             }
         }
@@ -278,10 +295,11 @@ namespace RogueWorld
         public void DrawSquare(Graphics g, int x, int y, Color color)
         {
             SolidBrush brush = new SolidBrush(color);
-            //Pen pen = new Pen(Color.Black);
             g.FillRectangle(brush, new Rectangle(x * tileWidth, y * tileWidth, tileWidth, tileWidth));
-            //g.DrawRectangle(pen, new Rectangle(x * tileHeight, y * tileHeight, tileHeight, tileHeight));
             brush.Dispose();
+
+            //Pen pen = new Pen(Color.Black);
+            //g.DrawRectangle(pen, new Rectangle(x * tileHeight, y * tileHeight, tileHeight, tileHeight));
             //pen.Dispose();
         }
 
@@ -306,25 +324,23 @@ namespace RogueWorld
             SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
             float x = 150.0F;
             float y = 50.0F;
-            StringFormat drawFormat = new StringFormat();
+            StringFormat drawFormat = new StringFormat();            
             g.DrawString(drawString, drawFont, drawBrush, x, y, drawFormat);
             drawFont.Dispose();
             drawBrush.Dispose();
             g.Dispose();
         }
-        public void DrawImage(Graphics g)
+
+       
+        public void DrawImage(Graphics g, int x, int y, Image img)
         {
-
-            //Image newImage = Image.FromFile(Application.StartupPath + "\\Images\\Terrain.bmp");
-            //Point ulCorner = new Point(0, 0);
-            //g.Graphics.DrawImageUnscaled(newImage, ulCorner);
-
+            g.DrawImage(img, x,y);
         }
     }
 }
 
 
-//foreach (var creature in creatureList)
+//          foreach (var creature in creatureList)
 //           {
 //               System.Type type = creature.GetType();
 
