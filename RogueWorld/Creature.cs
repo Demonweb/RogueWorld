@@ -10,6 +10,7 @@ namespace RogueWorld
     public class Creature
     {
         public Guid ID = Guid.NewGuid();
+        public bool Alive = true;
         public string Name = "creature";
         public Color bgColor = Color.Blue;
         public int height = 1;
@@ -23,20 +24,36 @@ namespace RogueWorld
         public float hunger = 0;
         public float thirstMax = 10;
         public float hungerMax = 10;
-        public bool Alive = true;
+       
         public int age = 0;
         public int maxAge = 1000;
         public int SpawnAge = GameScreen.globalRandom.Next(200);
-        public int SpawnOffspring = 0;
+        public int SpawnOffspringCount = 2;
 
-        public virtual void SpawnNew() { }
 
-        public virtual void SpawnDefault() { }
+        public virtual void SpawnSelf() { }
+        public virtual void UpdateAge() { }
+        public virtual void ScanDanger() { }
+        public virtual void ScanFood() { }
+        public virtual void Move() { }
+        public virtual void Eat() { }
+        public virtual void UpdateHealth() { }       
+        public virtual void SpawnOffspring() { }
+
+
+
+             
 
         public virtual void Update() { }
 
-        public virtual void Scan() { }
       
+
+        public void CreatureUpdate()
+        {
+         
+        }
+        
+       
         
 
     }

@@ -15,13 +15,13 @@ namespace RogueWorld
         Bitmap Backbuffer;
 
         public static Random globalRandom = new Random();
-        public static int tileWidth = 32;
-        public static int tileHeight = 32;
+        public static int tileWidth = 4;
+        public static int tileHeight = 4;
         public static int mapWidth = 10;
         public static int mapHeight = 10;
         public static Terrain[,] terrainMap; 
-        public float GrassGrowSpeed = 2f;
-        public static int NumberChickens = 5;
+        public float GrassGrowSpeed = .1f;
+       
 
         public static List<Creature> creatureList = new List<Creature>();
         public static List<Creature> spawnList = new List<Creature>();
@@ -87,38 +87,13 @@ namespace RogueWorld
             GameUpdate();
             Draw();
            
-        }
+        }               
 
-        void Draw()
-        {
-            if (Backbuffer != null)
-            {
-                using (var g = Graphics.FromImage(Backbuffer))
-                {
-                    g.Clear(Color.Black);
-
-                    DrawMap(g);
-                    DrawCreature(g);
-                    DrawString(g);
-                    DrawImage(g);
-                }
-
-                Invalidate();
-            }
-            this.Text = creatureList.Count().ToString();
-        }
 
         private void ResetGame()
         {
             ResetMap();
-            creatureList.Clear();
-           
-            for (int i = 0; i < 1; i++)
-            {
-                AddChicken();
-                //AddRabbit();
-                AddWolf();
-            }
+            ResetCreatures();
 
             
         }
@@ -130,8 +105,6 @@ namespace RogueWorld
 
             mapWidth = screen.Width / tileWidth;
             mapHeight = screen.Height / tileHeight;
-            //mapWidth = 20;
-            //mapHeight = 20;
             terrainMap = new Terrain[mapWidth, mapHeight];
 
             for (int x = 0; x < mapWidth; x++)
@@ -143,13 +116,24 @@ namespace RogueWorld
             }
         }
         
+        private void ResetCreatures()
+        {
+            creatureList.Clear();           
+            for (int i = 0; i < 100; i++)
+            {
+                AddChicken();
+                AddWolf();
+            }
+        }
+
         private void GameUpdate()
         {
 
             foreach (var creature in creatureList)
             {
-                creature.Update();
-                creature.Scan();
+                creature.ScanDanger();
+                creature.ScanFood();
+                creature.Update();                
             }
 
             List<Creature> creatureDeleteList = new List<Creature>();
@@ -160,6 +144,7 @@ namespace RogueWorld
             }
             creatureList.RemoveAll(x => x.Alive == false);
 
+
             creatureList.AddRange(spawnList);
 
             foreach (var creature in spawnList)
@@ -168,7 +153,11 @@ namespace RogueWorld
             }
             spawnList.Clear();
 
+            UpdateMap();           
+        }
 
+        private void UpdateMap()
+        {
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
@@ -237,23 +226,26 @@ namespace RogueWorld
 
         }
 
-        public static void AddRabbit()
+      
+
+
+        void Draw()
         {
-            Rabbit creature;
+            if (Backbuffer != null)
+            {
+                using (var g = Graphics.FromImage(Backbuffer))
+                {
+                    g.Clear(Color.Black);
 
-            creature = new Rabbit();
-            creature.Name = "Rabbit";
-            creature.bgColor = Color.Aqua;
-            creature.height = tileHeight;
-            creature.width = tileWidth;
-            int xpos = globalRandom.Next(mapWidth);
-            int ypos = globalRandom.Next(mapHeight);
-            creature.xPos = xpos;
-            creature.yPos = ypos;
+                    DrawMap(g);
+                    DrawCreature(g);
+                    DrawString(g);
+                    DrawImage(g);
+                }
 
-            creatureList.Add(creature);
-            terrainMap[xpos, ypos].stuffList.Add(creature);
-
+                Invalidate();
+            }
+            this.Text = creatureList.Count().ToString();
         }
         
         public void DrawMap(Graphics g)
@@ -291,8 +283,6 @@ namespace RogueWorld
             pen.Dispose();
         }
 
-
-
         public void DrawCircle(Graphics g, float x, float y, float radius, Color color)
         {
             Pen pen = new Pen(Color.Black);
@@ -320,6 +310,7 @@ namespace RogueWorld
             drawBrush.Dispose();
             g.Dispose();
         }
+
         public void DrawImage(Graphics g)
         {
 
@@ -331,14 +322,3 @@ namespace RogueWorld
     }
 }
 
-
-//foreach (var creature in creatureList)
-//           {
-//               System.Type type = creature.GetType();
-
-//               if (type==typeof(Chicken))
-//               {
-//                  //dosomething
-//               }
-
-//           }

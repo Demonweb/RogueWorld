@@ -13,14 +13,11 @@ namespace RogueWorld
         public string Name = "Grass";
         public Color bgColor = Color.Green;
         public bool blocked = false;
-
-        //public Image image = Image.FromFile(Application.StartupPath + "\\TerrainSprites\\0.png");
-
-
-        public List<Creature> stuffList = new List<Creature>();
-
         public float foodPotential = 0;
-
+        public List<Creature> stuffList = new List<Creature>();
+        
+        //public Image image = Image.FromFile(Application.StartupPath + "\\TerrainSprites\\0.png");
+        
         //public void SetImage(string fileName)
         //{ 
         //    image= Image.FromFile(Application.StartupPath + "\\TerrainSprites\\" + fileName);       

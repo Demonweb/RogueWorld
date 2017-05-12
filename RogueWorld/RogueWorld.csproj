@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Rabbit.cs" />
     <Compile Include="Chicken.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="DoubleBufferCode.cs">
@@ -71,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Terrain.cs" />
     <Compile Include="Wolf.cs" />
+    <Compile Include="ZZJunkSnips.cs" />
     <EmbeddedResource Include="GameScreen.resx">
       <DependentUpon>GameScreen.cs</DependentUpon>
     </EmbeddedResource>

@@ -9,21 +9,11 @@ namespace RogueWorld
 {
     class Wolf : Creature
     {
-        GameMechanics gm = new GameMechanics();
-
         public override void Update()
         {
-          
-            //age += 1;
-            //health -= 1;
 
-            Hunt();
-
-            
-            if (health < 1)
-            {
-                Alive = false;
-            }
+            ScanFood();
+                       
 
             if (age > SpawnAge)
             {
@@ -56,7 +46,7 @@ namespace RogueWorld
             }
         }
 
-        private void Hunt()
+        public override void ScanFood()
         {
             GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
 

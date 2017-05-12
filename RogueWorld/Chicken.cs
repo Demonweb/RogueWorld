@@ -12,19 +12,10 @@ namespace RogueWorld
 
         public override void Update()
         {
-            //GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
-
-            maxHealth = 100;
-            age += 1;
-
-            GameScreen.terrainMap[xPos, yPos].foodPotential = 0;
-            health -= 40;
-
-            if (health < 1)
-            {
-                Alive = false;
-            }
-
+           
+            //eat grass at current square
+            GameScreen.terrainMap[xPos, yPos].foodPotential =0;
+            
             if (age > SpawnAge)
             {
                 Alive = false;
@@ -43,14 +34,12 @@ namespace RogueWorld
                     creature.yPos = y;
                     GameScreen.spawnList.Add(creature);
                 }
-            }
-
-            Hunt();
-
+            }     
         }
 
 
-        public override void Scan()
+
+        public override void ScanDanger()
         {
             List<Creature> scanList = new List<Creature>();
 
@@ -66,7 +55,7 @@ namespace RogueWorld
 
                             if (type == typeof(Wolf))
                             {
-                                var tt = 0;
+                              //hide from wolf
                             }
                         }                        
                     }
@@ -74,16 +63,21 @@ namespace RogueWorld
             }           
         }
 
-
-        private void Hunt()
+        public override void Move()
         {
-
-
-
+            base.Move();
             GameScreen.terrainMap[xPos, yPos].stuffList.RemoveAll(x => x.ID == this.ID);
+
+            GameScreen.terrainMap[xPos, yPos].stuffList.Add(this);
+
+        }
+
+        public override void ScanFood()
+        {
 
             float highestFoodValue = 0;
             List<Point> moveDirectionList = new List<Point>();
+           
 
             //up
             int tryX = xPos - 1;
@@ -153,6 +147,7 @@ namespace RogueWorld
 
             GameScreen.terrainMap[xPos, yPos].stuffList.Add(this);
 
+           
             health += highestFoodValue;
             if (health > maxHealth) health = maxHealth;
 
